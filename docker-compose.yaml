@@ -52,3 +52,5 @@ services:
       S3_BUCKET: hbtest
     entrypoint: sh
     command: '-c ''mkdir -p /export/$${S3_BUCKET} && /usr/bin/minio server /export'''
+volumes:
+  db_data:
