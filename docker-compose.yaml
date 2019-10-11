@@ -16,8 +16,8 @@ services:
     - 6050:80
     ## you can change pgAdmin default username/password with below environment variables
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin1234@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin1234
+      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
     - ./pgadmin_files:/var/lib/pgadmin
   graphql-engine:
@@ -31,7 +31,7 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       ## uncomment next line to set an access key
-      HASURA_GRAPHQL_ADMIN_SECRET: admin1234
+      HASURA_GRAPHQL_ADMIN_SECRET: admin
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS256", "key":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA84lx+VqwXzRiMDxIHyfQ\ns5wtalu4FnxnFlht2GR4miParLsqjmQMCqtvxW8StSErYVJlRjwZUuIWsnDA31pG\nBwjpsAV56iyK4xdaHrIluaOBCMbUw1O6O2RAs6pGFvPGi3B2wat7dj6nT+03M+xH\nS+jPZXzXDoh9VgWJ7h9hDllEYedDRbleFwLC7prLLZQTK/lSAQTOn4aPo/3S9LPS\nLgPzoJGVej2OYPlyMzeU4oPxj56FX7dVqpsaQP3tLjrLcWm1l38dVSQhy0gexF+u\navn/gwDsFn4gBqQ7me6FPUkB8/K7pGWDjl1/sPF3vI1zg0/RB89bHv4PmX20bsj1\ncQIDAQAB\n-----END PUBLIC KEY-----\n"}'
   hasura-backend-plus:
     image: elitan/hasura-backend-plus:v0.0.6-alpha
@@ -43,8 +43,8 @@ services:
     environment:
 ##      USER_FIELDS: '<user_fields>' // separate with comma. Ex: 'company_id,sub_org_id'
       USER_REGISTRATION_AUTO_ACTIVE: 'true'
-      HASURA_GRAPHQL_ENDPOINT: http://graphql-engine:8080/graphql
-      HASURA_GRAPHQL_ADMIN_SECRET: admin1234
+      HASURA_GRAPHQL_ENDPOINT: http://77.55.221.194:8080/v1alpha1/graphql
+      HASURA_GRAPHQL_ADMIN_SECRET: admin
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS256", "key":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA84lx+VqwXzRiMDxIHyfQ\ns5wtalu4FnxnFlht2GR4miParLsqjmQMCqtvxW8StSErYVJlRjwZUuIWsnDA31pG\nBwjpsAV56iyK4xdaHrIluaOBCMbUw1O6O2RAs6pGFvPGi3B2wat7dj6nT+03M+xH\nS+jPZXzXDoh9VgWJ7h9hDllEYedDRbleFwLC7prLLZQTK/lSAQTOn4aPo/3S9LPS\nLgPzoJGVej2OYPlyMzeU4oPxj56FX7dVqpsaQP3tLjrLcWm1l38dVSQhy0gexF+u\navn/gwDsFn4gBqQ7me6FPUkB8/K7pGWDjl1/sPF3vI1zg0/RB89bHv4PmX20bsj1\ncQIDAQAB\n-----END PUBLIC KEY-----\n"}'
       S3_ACCESS_KEY_ID: admin1234
       S3_SECRET_ACCESS_KEY: admin1234
