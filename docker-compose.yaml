@@ -28,8 +28,8 @@ services:
     - 6050:80
     ## you can change pgAdmin default username/password with below environment variables
     environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: admin@password.com
+      PGADMIN_DEFAULT_PASSWORD: password
     volumes:
     - ./pgadmin_files:/var/lib/pgadmin
   hasura-backend-plus:
