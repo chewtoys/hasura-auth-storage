@@ -5,6 +5,8 @@ services:
     restart: always
     volumes:
     - db_data:/var/lib/postgresql/data
+    networks:
+    - postgres
   graphql-engine:
     image: hasura/graphql-engine:v1.0.0-beta.6
     ports:
@@ -16,7 +18,7 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\nUWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\nHUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\no2kQ+X5xK9cipRgEKwIDAQAB\n-----END PUBLIC KEY-----\n"}'    
+      ## HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\nUWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\nHUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\no2kQ+X5xK9cipRgEKwIDAQAB\n-----END PUBLIC KEY-----\n"}'    
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
   pgadmin:
@@ -28,42 +30,7 @@ services:
     - 6050:80
     ## you can change pgAdmin default username/password with below environment variables
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@password.com
-      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_DEFAULT_EMAIL: admin
+      PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
     - ./pgadmin_files:/var/lib/pgadmin
-  hasura-backend-plus:
-    image: elitan/hasura-backend-plus:v0.0.6-alpha
-    depends_on:
-    - "postgres"
-    restart: always
-    ports:
-    - "4010:3010"
-    environment:
-      USER_REGISTRATION_AUTO_ACTIVE: 'true'
-      HASURA_GRAPHQL_ENDPOINT: http://77.55.221.194:8080/v1/graphql
-      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\nUWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\nHUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\no2kQ+X5xK9cipRgEKwIDAQAB\n-----END PUBLIC KEY-----\n"}'    
-      S3_ACCESS_KEY_ID: admin1234
-      S3_SECRET_ACCESS_KEY: admin1234
-      S3_ENDPOINT: http://minio:9000
-      S3_BUCKET: hbtest
-      # DOMAIN: localhost
-      REFRESH_TOKEN_EXPIRES: 54000
-    volumes:
-     - './storage-rules:/app/src/storage/rules'
-  minio:
-    image: minio/minio
-    restart: always
-    volumes:
-     - './minio_volume/data:/export'
-     - './minio_volume/config:/root/.minio'
-    ports:
-    - 9000:9000
-    environment:
-      MINIO_ACCESS_KEY: admin1234
-      MINIO_SECRET_KEY: admin1234
-      S3_BUCKET: hbtest
-    entrypoint: sh
-    command: '-c ''mkdir -p /export/$${S3_BUCKET} && /usr/bin/minio server /export'''
-volumes:
-  db_data:
