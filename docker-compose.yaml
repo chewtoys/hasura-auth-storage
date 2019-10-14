@@ -5,20 +5,6 @@ services:
     restart: always
     volumes:
     - ./db_data:/var/lib/postgresql/data
-  graphql-engine:
-    image: hasura/graphql-engine:v1.0.0-beta.6
-    ports:
-    - "8080:8080"
-    depends_on:
-    - "postgres"
-    restart: always
-    environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
-      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      ## HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\nUWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\nHUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\no2kQ+X5xK9cipRgEKwIDAQAB\n-----END PUBLIC KEY-----\n"}'    
-      ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -32,22 +18,52 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
     - ./pgadmin_files:/var/lib/pgadmin
-  keycloak:
-    image: jboss/keycloak
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: postgres
-      DB_USER: postgres
-      DB_PASSWORD: password
-      DB_SCHEMA: public
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      #JDBC_PARAMS: "ssl=true"
+  graphql-engine:
+    image: hasura/graphql-engine:latest
     ports:
-      - 8443:8443
+    - "8080:8080"
     depends_on:
-      - postgres
+    - "postgres"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\nUWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\nHUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\no2kQ+X5xK9cipRgEKwIDAQAB\n-----END PUBLIC KEY-----\n"}'    
+      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+  hasura-backend-plus:
+    image: elitan/hasura-backend-plus:latest
+    depends_on:
+    - "postgres"
+    restart: always
+    ports:
+    - "4010:3010"
+    environment:
+      # USER_FIELDS: '<user_fields>' // separate with comma. Ex: 'company_id,sub_org_id'
+      USER_REGISTRATION_AUTO_ACTIVE: 'false'
+      HASURA_GRAPHQL_ENDPOINT: http://graphql-engine:8080/v1/graphql
+      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS256", "key":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA84lx+VqwXzRiMDxIHyfQ\ns5wtalu4FnxnFlht2GR4miParLsqjmQMCqtvxW8StSErYVJlRjwZUuIWsnDA31pG\nBwjpsAV56iyK4xdaHrIluaOBCMbUw1O6O2RAs6pGFvPGi3B2wat7dj6nT+03M+xH\nS+jPZXzXDoh9VgWJ7h9hDllEYedDRbleFwLC7prLLZQTK/lSAQTOn4aPo/3S9LPS\nLgPzoJGVej2OYPlyMzeU4oPxj56FX7dVqpsaQP3tLjrLcWm1l38dVSQhy0gexF+u\navn/gwDsFn4gBqQ7me6FPUkB8/K7pGWDjl1/sPF3vI1zg0/RB89bHv4PmX20bsj1\ncQIDAQAB\n-----END PUBLIC KEY-----\n"}'
+      S3_ACCESS_KEY_ID: admin
+      S3_SECRET_ACCESS_KEY: admin
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: hbtest
+      REFRESH_TOKEN_EXPIRES: 54000
+    volumes:
+    - './storage-rules:/app/src/storage/rules'
+  minio:
+    image: minio/minio
+    restart: always
+    volumes:
+     - './minio_volume/data:/export'
+     - './minio_volume/config:/root/.minio'
+    ports:
+    - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: admin
+      S3_BUCKET: hbtest
+    entrypoint: sh
+    command: '-c ''mkdir -p /export/$${S3_BUCKET} && /usr/bin/minio server /export'''
 volumes:
   db_data:
